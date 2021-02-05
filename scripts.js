@@ -21,11 +21,11 @@ const Modal = {
 // Criando o local de armazenamento da aplicação
 const Storage = {
     get() {
-        return JSON.parse(localStorage.getItem("Laux")) || []
+        return JSON.parse(localStorage.getItem("dev.finances")) || []
     },
 
     set(transactions) {
-        localStorage.setItem("Laux", JSON.stringify(transactions))
+        localStorage.setItem("dev.finances", JSON.stringify(transactions))
     }
 }
 
@@ -183,8 +183,8 @@ const Form = {
             description.trim() === "" ||
             amount.trim() === "" ||
             date.trim() === "") {
-                throw new Error("Por favor, preencha todos os campos!")
-            }
+            throw new Error("Por favor, preencha todos os campos!")
+        }
     },
 
     // Formatando os dados
@@ -224,13 +224,47 @@ const Form = {
             Form.saveTransaction(transaction)
             Form.clearFields()
             Modal.close()
-            
+
         } catch (error) {
             alert(error.message)
         }
     }
 }
 
+// Dark mode
+
+    //Pegando o input
+    const checkbox = document.getElementById("switch")
+
+    //Clicando no input
+    checkbox.addEventListener("change", ({ target }) => {
+        target.checked ? darkModeOn() : darkModeOff()
+    })
+
+    //Função que liga o darkmode
+    function darkModeOn() {
+        document.body.classList.add("dark-mode");
+        localStorage.setItem('isDarkMode', true);
+        localStorage.setItem('checkbox', true);
+    }
+
+    //Função que desliga o darkmode
+    function darkModeOff() {
+        document.body.classList.remove("dark-mode")
+        localStorage.setItem('isDarkMode', false);
+        localStorage.setItem('checkbox', false);
+    }
+
+    //Função que checa se a checkbox está ativada ou não
+    function checkboxStatus() {
+        var checked = JSON.parse(localStorage.getItem('checkbox'))
+        if (checked == true) {
+            document.getElementById("switch").checked = checked
+        }
+    } 
+    checkboxStatus()
+
+// Incializando o aplicativo
 const App = {
     // Inicia o APP
     init() {
@@ -244,6 +278,13 @@ const App = {
 
         // Atualizando o LocalStorage
         Storage.set(Transaction.all)
+
+        //Setando o esquema de cores
+        if (localStorage.getItem('isDarkMode') === 'true') {
+            document.body.classList.add("dark-mode")
+        } else {
+            document.body.classList.remove("dark-mode")
+        }
     },
 
     // Recarrega o APP
