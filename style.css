@@ -350,6 +350,25 @@ td.expense {
     width: 48%;
 }
 
+/* Chart */
+#chart {
+    background-color: var(--table-bg);
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+}
+
+.chart-container {
+    /* position: relative; */
+    margin: auto;
+    height: 40vh;
+    width: 80vw;
+    margin-bottom: 6rem;
+}
+
+.chart-container h2 {
+    margin-bottom: 2rem !important;
+}
+
 /* Footer */
 
 footer {
@@ -370,6 +389,14 @@ footer {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         gap: 2rem;
+    }
+
+    .chart-container {
+        /* position: relative; */
+        margin: auto;
+        height: 40vh;
+        width: 57rem;
+        margin-bottom: 6rem;
     }
 }
 

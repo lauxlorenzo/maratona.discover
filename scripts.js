@@ -156,7 +156,15 @@ const Utils = {
         })
 
         return signal + value
-    }
+    },
+
+    darkModeColor() {
+        if (localStorage.getItem('isDarkMode') === true) {
+            return 'rgba(255, 255, 255, 0.7)'
+        } else {
+            return '#969cb3'
+        }
+    },
 }
 
 // Pegando os dados do formulário de adição de transação
@@ -231,41 +239,142 @@ const Form = {
     }
 }
 
-// Dark mode
 
-    //Pegando o input
-    const checkbox = document.getElementById("switch")
+// Dark mode --------------------------------------------
+
+//Pegando o input
+checkbox = document.getElementById("switch"),
 
     //Clicando no input
     checkbox.addEventListener("change", ({ target }) => {
         target.checked ? darkModeOn() : darkModeOff()
     })
 
-    //Função que liga o darkmode
-    function darkModeOn() {
-        document.body.classList.add("dark-mode");
-        localStorage.setItem('isDarkMode', true);
-        localStorage.setItem('checkbox', true);
-    }
+//Função que liga o darkmode
+function darkModeOn() {
+    document.body.classList.add("dark-mode");
+    localStorage.setItem('isDarkMode', true);
+    localStorage.setItem('checkbox', true);
+}
 
-    //Função que desliga o darkmode
-    function darkModeOff() {
-        document.body.classList.remove("dark-mode")
-        localStorage.setItem('isDarkMode', false);
-        localStorage.setItem('checkbox', false);
-    }
+//Função que desliga o darkmode
+function darkModeOff() {
+    document.body.classList.remove("dark-mode")
+    localStorage.setItem('isDarkMode', false);
+    localStorage.setItem('checkbox', false);
+}
 
-    //Função que checa se a checkbox está ativada ou não
-    function checkboxStatus() {
-        var checked = JSON.parse(localStorage.getItem('checkbox'))
-        if (checked == true) {
-            document.getElementById("switch").checked = checked
+//Função que checa se a checkbox está ativada ou não
+function checkboxStatus() {
+    var checked = JSON.parse(localStorage.getItem('checkbox'))
+    if (checked == true) {
+        document.getElementById("switch").checked = checked
+    }
+}
+checkboxStatus()
+
+
+// Gráfico 
+const Graph = {
+    // Criando e imprimindo o Gráfico
+    hook: document.getElementById("chart").getContext("2d"),
+    constructor: {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Transação',
+                data: [],
+                backgroundColor: ['rgba(0, 0, 0, 0)'],
+                borderColor: ['#49AA26'],
+                pointBackgroundColor: ['#49AA26']
+            }],
+        },
+        options: {
+            legend: {
+                display: false,
+            },
+            tooltips: {
+                enable: true,
+                intersect: true,
+                backgroundColor: ['#49AA26'],
+                titleFontColor: ['#fff'],
+                bodyFontColor: ['#fff'],
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 20,
+                    right: 50,
+                    top: 30,
+                    bottom: 20
+                }
+            },
+            scales: {
+                xAxes: [
+                    {
+                        gridLines: {
+                            display: true,
+                        },
+                        ticks: {
+                            fontColor: Utils.darkModeColor(),
+                            fontFamily: 'Poppins',
+                        },
+                    },
+                ],
+                yAxes: [
+                    {
+                        gridLines: {
+                            display: false,
+                        },
+                        ticks: {
+                            fontColor: Utils.darkModeColor(),
+                            fontFamily: 'Poppins',
+                        },
+                    },
+                ],
+            },
         }
-    } 
-    checkboxStatus()
+    },
+
+    // Funcionalidade para pegas as datas
+    getData() {
+        const datas = []
+        Storage.get().forEach((element) => {
+            datas.push(element.date)
+        });
+
+        datas.sort((a, b) => {
+            return new Date(a.split('/').reverse().join('-'))
+                - new Date(b.split('/').reverse().join('-'))
+        });
+
+        App.chart.data.labels = datas;
+    },
+
+    // Funcionalidade para pegas os Amounts
+    getAmount() {
+        const amounts = []
+        Storage.get().forEach((element) => {
+            amounts.push(element.amount / 100)
+        });
+        App.chart.data.datasets[0].data = amounts;
+    },
+
+    // Funcionalidade para recarregar o gráfico
+    graphReload() {
+        Graph.getData();
+        Graph.getAmount();
+        App.chart.update();
+    },
+
+}
 
 // Incializando o aplicativo
 const App = {
+    chart: null,
+    isFirstInitializaiton: true,
     // Inicia o APP
     init() {
         // Adicionando as Transações ao html
@@ -285,14 +394,25 @@ const App = {
         } else {
             document.body.classList.remove("dark-mode")
         }
+
+        if (App.isFirstInitializaiton) {
+            App.chart = new Chart(Graph.hook, Graph.constructor);
+        }
+        Graph.graphReload();
     },
 
     // Recarrega o APP
     reload() {
-        DOM.clearTransactions()
+        App.isFirstInitializaiton = false,
+            DOM.clearTransactions()
         App.init()
     }
 }
 
 App.init()
+
+
+
+
+
 
